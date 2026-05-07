@@ -4,17 +4,32 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ChevronRight, Github } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate login
-    setTimeout(() => {
+    setError(null);
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
       window.location.href = '/dashboard';
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,6 +41,11 @@ export default function LoginPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
         <p className="text-slate-400">Log in to access your analytics dashboard.</p>
+        {error && (
+          <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-500 text-sm font-medium">
+            {error}
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -36,6 +56,8 @@ export default function LoginPage() {
             <input 
               type="email" 
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="name@company.com"
               className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-primary transition-all"
             />
@@ -52,6 +74,8 @@ export default function LoginPage() {
             <input 
               type="password" 
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-primary transition-all"
             />

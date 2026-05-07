@@ -29,12 +29,19 @@ const sidebarLinks = [
   { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
 ];
 
+import { supabase } from '@/lib/supabase';
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 flex overflow-hidden">
@@ -80,7 +87,10 @@ export default function DashboardLayout({
             <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/20 blur-2xl rounded-full group-hover:scale-150 transition-transform duration-700" />
           </div>
           
-          <button className="w-full flex items-center gap-3 px-4 py-3 mt-6 text-slate-400 hover:text-rose-400 transition-all">
+          <button 
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-4 py-3 mt-6 text-slate-400 hover:text-rose-400 transition-all"
+          >
             <LogOut className="w-5 h-5" />
             <span className="font-semibold">Sign Out</span>
           </button>
